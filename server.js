@@ -9,10 +9,11 @@ const io = socketio(server);
 
 // MySQL 연결 설정
 const db = mysql.createConnection({
-  host: 'ec2-3-139-216-27.us-east-2.compute.amazonaws.com',
+  host: 'localhost',
   user: 'root', // 로컬 MySQL 사용자 이름
   password: 'password', // 로컬 MySQL 비밀번호
-  database: '2024SparcsHackathon' // 사용할 데이터베이스 이름
+  database: '2024SparcsHackathon', // 사용할 데이터베이스 이름
+  authPlugin: 'mysql_native_password'
 });
 
 // 데이터베이스 연결
@@ -50,9 +51,22 @@ io.on('connection', socket => {
 // Express 라우터 설정 (회원가입, 방 관리 등)
 
 app.get('/', (req, res) => {
-  res.send('채팅 앱 서버');
+  // 데이터베이스에서 테이블 목록을 가져오는 쿼리
+  const query = 'SHOW TABLES';
+  
+  // 쿼리 실행
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error('테이블 목록을 가져오는 중 오류 발생:', err);
+      res.status(500).send('서버 오류');
+      return;
+    }
+    
+    // 쿼리 결과를 클라이언트에게 응답
+    const tables = result.map(row => row[`Tables_in_${db.config.database}`]);
+    res.send(tables, "Dd");
+  });
 });
-
 // 서버 시작
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
