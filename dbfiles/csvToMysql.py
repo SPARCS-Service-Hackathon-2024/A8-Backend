@@ -2,10 +2,10 @@ import pandas as pd
 import mysql.connector
 # MySQL 연결 설정
 conn = mysql.connector.connect(
-    host="localhost",
+    host="db-2024.cmfm8tzevuuc.us-east-2.rds.amazonaws.com",
     user="root", # 사용자 이름
     password="password", # 비밀번호
-    database="2024SparcsHackathon" # 데이터베이스 이름
+    database="db-2024" # 데이터베이스 이름
 )
 
 def add_stations():
@@ -76,27 +76,32 @@ def add_routes():
 
 def add_rel_route_station():
     # CSV 파일 읽기
-    df = pd.read_csv("concatenated.csv")
+    df = pd.read_csv("new_concatenated_routes.csv")
     # 데이터프레임의 열 데이터 형식 변환
     # 필요한 열 선택
-    df_subset = df[['route_id','name']]
+    df_subset = df[['route_id','BUS_NODE_ID']]
+    origin_route = -1
+    route_count = 0
 
     # Relation_Routes_Stations 테이블에 데이터 추가
     cursor = conn.cursor()
-    q = 'DESC Routes'
-    cursor.execute(q)
-    print(cursor.fetchall())
-
     for i, row in df_subset.iterrows():
-        print(i)
-        sql = "select * from Routes where route_id = %s"
-        val = (row['route_id'],)
+        if origin_route == row['route_id']:
+            route_count = 0
+            origin_route = row['route_id']
+        else:
+            route_count += 1
+
+        sql = "select * from Relation_Routes_Stations where route_id = %s AND station_id = %s"
+        val = (int(row['route_id']), int(row['BUS_NODE_ID']))
         # 쿼리 실행
+        print(sql, val)
         cursor.execute(sql, val)
         if cursor.fetchall() == []:
             # SQL 쿼리 생성
-            sql = "INSERT INTO Routes (route_id, name) VALUES (%s, %s)"
-            val = (row['route_id'],row['name'])
+            print(sql,val)
+            sql = "INSERT INTO Relation_Routes_Stations (route_id, station_id, number) VALUES (%s, %s, %s)"
+            val = (int(row['route_id']),int(row['BUS_NODE_ID']), route_count)
             # 쿼리 실행
             cursor.execute(sql, val)
 
@@ -107,5 +112,5 @@ def add_rel_route_station():
     conn.close()
 
 add_stations()
-#add_routes()
-
+add_routes()
+add_rel_route_station()
