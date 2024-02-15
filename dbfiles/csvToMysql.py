@@ -2,10 +2,10 @@ import pandas as pd
 import mysql.connector
 # MySQL 연결 설정
 conn = mysql.connector.connect(
-    host="db-2024.cmfm8tzevuuc.us-east-2.rds.amazonaws.com",
+    host="localhost",
     user="root", # 사용자 이름
     password="password", # 비밀번호
-    database="db-2024" # 데이터베이스 이름
+    database="2024SparcsHackathon" # 데이터베이스 이름
 )
 
 def add_stations():
