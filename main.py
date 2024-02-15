@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, Form
 from sqlalchemy.orm import Session
-from models import Base, User, Relation_Routes_Stations, Stations
+from models import Base, Users, Relation_Routes_Stations, Stations
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -28,7 +28,7 @@ async def root():
 
 @app.post("/login")
 def login(login_id: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.login_id == login_id).first()
+    user = db.query(Users).filter(Users.login_id == login_id).first()
     if not user or not user.password == password:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     return {"message": "Login successful"}
@@ -40,5 +40,6 @@ def select_route(route_id: int, db: Session = Depends(get_db)):
         Stations.name,
         Stations.latitude,
         Stations.longitude
-    ).join(Stations, Relation_Routes_Stations.station_id == Stations.id).filter(Relation_Routes_Stations.route_id == route_id).all()
+    ).join(Stations, Relation_Routes_Stations.station_id == Stations.station_id).filter(Relation_Routes_Stations.route_id == route_id).all()
+    print(join_query)
     return join_query
