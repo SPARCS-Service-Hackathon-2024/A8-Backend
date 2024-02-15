@@ -5,7 +5,8 @@ conn = mysql.connector.connect(
     host="localhost",
     user="root", # 사용자 이름
     password="password", # 비밀번호
-    database="2024SparcsHackathon" # 데이터베이스 이름
+    database="2024SparcsHackathon", # 데이터베이스 이름
+    auth_plugin='mysql_native_password'  # 인증 플러그인 지정
 )
 
 ddl = """
