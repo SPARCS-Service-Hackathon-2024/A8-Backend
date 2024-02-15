@@ -1,4 +1,3 @@
-import pandas as pd
 import mysql.connector
 
 conn = mysql.connector.connect(
@@ -85,7 +84,7 @@ CREATE TABLE `Relation_Routes_Stations` (
 
 cursor = conn.cursor()
 
-cursor.execute(ddl)
+cursor.execute(ddl, multi=True)
 
 # 변경 사항 커밋
 conn.commit()
